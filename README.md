@@ -4,24 +4,18 @@ import csv
 import datetime
 from openpyxl import Workbook
 
-
 class EmployeeManager:
     def __init__(self, root):
         self.root = root
         self.root.title("Quản lý nhân viên")
-        self.root.geometry("900x600")
-
-        # Tạo giao diện nhập thông tin
+        self.root.geometry("600x400")
         self.create_widgets()
-
-        # Tạo danh sách nhân viên
         self.employees = []
 
     def create_widgets(self):
         frame = ttk.Frame(self.root, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
 
-        # Các trường thông tin
         ttk.Label(frame, text="Mã:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         self.id_entry = ttk.Entry(frame)
         self.id_entry.grid(row=0, column=1, padx=5, pady=5)
@@ -55,13 +49,11 @@ class EmployeeManager:
         self.place_of_issue_entry = ttk.Entry(frame)
         self.place_of_issue_entry.grid(row=3, column=3, padx=5, pady=5)
 
-        # Các nút bấm
         ttk.Button(frame, text="Lưu thông tin", command=self.save_employee).grid(row=4, column=0, padx=5, pady=10)
         ttk.Button(frame, text="Sinh nhật hôm nay", command=self.show_today_birthdays).grid(row=4, column=1, padx=5, pady=10)
         ttk.Button(frame, text="Xuất danh sách", command=self.export_to_excel).grid(row=4, column=2, padx=5, pady=10)
 
     def save_employee(self):
-        # Lấy thông tin từ các trường nhập
         employee = {
             "id": self.id_entry.get(),
             "name": self.name_entry.get(),
@@ -73,7 +65,6 @@ class EmployeeManager:
             "place_of_issue": self.place_of_issue_entry.get(),
         }
 
-        # Lưu vào danh sách và tệp CSV
         self.employees.append(employee)
         with open("employees.csv", "a", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=employee.keys())
@@ -105,27 +96,19 @@ class EmployeeManager:
             messagebox.showinfo("Thông báo", msg)
 
     def export_to_excel(self):
-        # Sắp xếp danh sách theo tuổi giảm dần
         self.employees.sort(key=lambda x: datetime.datetime.strptime(x["birth_date"], "%d/%m/%Y"), reverse=True)
-
-        # Tạo tệp Excel
         workbook = Workbook()
         sheet = workbook.active
         sheet.title = "Danh sách nhân viên"
-
-        # Ghi dữ liệu vào Excel
         headers = ["Mã", "Tên", "Đơn vị", "Chức danh", "Ngày sinh", "Giới tính", "Số CMND", "Nơi cấp"]
         sheet.append(headers)
         for emp in self.employees:
             sheet.append([emp["id"], emp["name"], emp["department"], emp["position"], emp["birth_date"], emp["gender"], emp["id_number"], emp["place_of_issue"]])
-
-        # Lưu tệp
         filepath = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
         if filepath:
             workbook.save(filepath)
             messagebox.showinfo("Thông báo", "Đã xuất danh sách nhân viên ra Excel!")
 
-# Chạy chương trình
 if __name__ == "__main__":
     root = tk.Tk()
     app = EmployeeManager(root)
